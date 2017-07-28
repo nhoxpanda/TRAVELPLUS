@@ -1,0 +1,355 @@
+﻿@using CRM.Core
+@using TRAVELPLUS.Utilities
+@using TRAVELPLUS.Models
+@model tbl_Ticket
+@{
+    var ticket = ViewBag.TicketViewModel as TicketViewModel;
+}
+
+<div class="modal fade" id="modal-edit-ticket" role="document" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">Thêm mới Vé máy bay</h4>
+            </div>
+            @using (Html.BeginForm("Update", "TicketManage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.HiddenFor(model => model.Id)
+                @Html.HiddenFor(model => model.CreateDate)
+                @Html.HiddenFor(model => model.Staff)
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="tabbable-custom" id="tab-edit-customer">
+                            <ul class="nav nav-tabs">
+                                <li class="active">
+                                    <a href="#thongtinchungedit" data-toggle="tab">Thông tin chung</a>
+                                </li>
+                                <li>
+                                    <a href="#hanhtrinhbayedit" data-toggle="tab">Hành trình bay</a>
+                                </li>
+                                <li>
+                                    <a href="#thethanhvienedit" data-toggle="tab">Thẻ thành viên</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="thongtinchungedit">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Code vé máy bay</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.Code, new { @class = "form-control" })
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Số vé máy bay</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.Number, new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Loại vé</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    <select class="form-control" name="TypeId" id="edit-type" style="width: 100%">
+                                                        @foreach (var item in LoadData.TicketTypeList())
+                                                        {
+                                                            <option value="@item.Id" @(Model.TypeId == item.Id ? "selected" : "")>@item.Name</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Mã đoàn</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.CodeGroup, new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Điều kiện vé</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    <select class="form-control" name="Condition" id="edit-condition" style="width: 100%">
+                                                        <option value="">-- Chọn điều kiện vé --</option>
+                                                        <option value="Hoàn vé" @(Model.Condition == "Hoàn vé" ? "selected" : "")>Hoàn vé</option>
+                                                        <option value="Hủy vé" @(Model.Condition == "Hủy vé" ? "selected" : "")>Hủy vé</option>
+                                                        <option value="Đổi vé" @(Model.Condition == "Đổi vé" ? "selected" : "")>Đổi vé</option>
+                                                    </select>
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Tình trạng</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    <select class="form-control" name="StatusId" id="edit-status" style="width: 100%">
+                                                        <option>-- Chọn tình trạng --</option>
+                                                        @foreach (var item in LoadData.TicketStatusList())
+                                                        {
+                                                            <option value="@item.Id" @(Model.StatusId == item.Id ? "selected" : "")>@item.Name</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Hãng hàng không</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    <select class="form-control" name="AirlineId" id="edit-airline" style="width: 100%">
+                                                        <option>-- Chọn hãng hàng không-- </option>
+                                                        @foreach (var item in LoadData.AirlineList())
+                                                        {
+                                                            <option value="@item.Id" @(Model.AirlineId == item.Id ? "selected" : "")>@item.Name</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Số lượng</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.Quantity, new { @class = "form-control", type = "number" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Giá fare</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.FarePrice, new { @class = "form-control", id = "edit-fare", onchange = "CalculatorRoseCostEdit()" })
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Giá tax</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.TaxPrice, new { @class = "form-control", id = "edit-tax", onchange = "CalculatorRoseCostEdit()" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Giá service</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.ServicePrice, new { @class = "form-control", id = "edit-service", onchange = "CalculatorRoseCostEdit()" })
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Giá cost</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.Price, new { @class = "form-control", id = "edit-cost" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Giá sale</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.SalePrice, new { @class = "form-control", id = "edit-sale" })
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Giá đã trừ com</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.ComPrice, new { @class = "form-control", id = "edit-com" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Chiết khấu</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    <input type="text" id="edit-percent" readonly="readonly" class="form-control" value="@ticket.Percent" />
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Hoa hồng</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.RosePrice, new { @class = "form-control", id = "edit-rose" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Ghi chú</label>
+                                                <div class="col-lg-10 col-md-10">
+                                                    @Html.TextAreaFor(model => model.Note, new { @class = "form-control", id = "edit-note" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="hanhtrinhbayedit">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">
+                                                    Khứ hồi
+                                                    @Html.CheckBoxFor(model => model.IsRoundTrip)
+                                                </label>
+                                                <label class="control-label col-lg-2 col-md-2">Ngày đi</label>
+                                                <div class="col-lg-3 col-md-3">
+                                                    @Html.TextBoxFor(model => model.StartDate, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control" })
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Ngày về</label>
+                                                <div class="col-lg-3 col-md-3">
+                                                    @Html.TextBoxFor(model => model.EndDate, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-md-12">
+                                                    <strong>Lượt đi</strong>
+                                                </label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-2">Điểm đi</label>
+                                                <div class="col-md-3">
+                                                    <select class="form-control" id="edit-start1-country" style="width: 100%">
+                                                        <option>-- Chọn quốc gia --</option>
+                                                        @foreach (var item in LoadData.DropdownlistCountry())
+                                                        {
+                                                            <option value="@item.Id" @(ticket.DepartureId1 == item.Id ? "selected" : "")>@item.Tags</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <select class="form-control" name="FirstDepartureId" id="edit-start1-province" style="width: 100%">
+                                                        <option>-- Chọn tỉnh thành --</option>
+                                                        @foreach (var item in LoadData.ProvinceByCountry(ticket.DepartureId1 ?? 0))
+                                                        {
+                                                            <option value="@item.Id" @(Model.FirstDepartureId == item.Id ? "selected" : "")>@item.Tags</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-control" name="FirstDepartureAirportId" id="edit-start1-airport" style="width: 100%">
+                                                        <option>-- Sân bay --</option>
+                                                        @foreach (var item in LoadData.AirportByProvine(Model.FirstDepartureId))
+                                                        {
+                                                            <option value="@item.Id" @(Model.FirstDepartureAirportId == item.Id ? "selected" : "")>@item.Code</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-2">Điểm đến</label>
+                                                <div class="col-md-3">
+                                                    <select class="form-control" id="edit-end1-country" style="width: 100%">
+                                                        <option>-- Chọn quốc gia --</option>
+                                                        @foreach (var item in LoadData.DropdownlistCountry())
+                                                        {
+                                                            <option value="@item.Id" @(ticket.Destination1 == item.Id ? "selected" : "")>@item.Tags</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <select class="form-control" name="FirstDestinationId" id="edit-end1-province" style="width: 100%">
+                                                        <option>-- Chọn tỉnh thành --</option>
+                                                        @foreach (var item in LoadData.ProvinceByCountry(ticket.Destination1 ?? 0))
+                                                        {
+                                                            <option value="@item.Id" @(Model.FirstDestinationId == item.Id ? "selected" : "")>@item.Tags</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-control" name="FirstDestinationAirportId" id="edit-end1-airport" style="width: 100%">
+                                                        <option>-- Sân bay --</option>
+                                                        @foreach (var item in LoadData.AirportByProvine(Model.FirstDestinationId))
+                                                        {
+                                                            <option value="@item.Id" @(Model.FirstDestinationAirportId == item.Id ? "selected" : "")>@item.Code</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-md-12">
+                                                    <strong>Lượt về</strong>
+                                                </label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-2">Điểm đi</label>
+                                                <div class="col-md-3">
+                                                    <select class="form-control" id="edit-start2-country" style="width: 100%">
+                                                        <option>-- Chọn quốc gia --</option>
+                                                        @foreach (var item in LoadData.DropdownlistCountry())
+                                                        {
+                                                            <option value="@item.Id" @(ticket.DepartureId2 == item.Id ? "selected" : "")>@item.Tags</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <select class="form-control" name="SecondDepartureId" id="edit-start2-province" style="width: 100%">
+                                                        <option>-- Chọn tỉnh thành --</option>
+                                                        @foreach (var item in LoadData.ProvinceByCountry(ticket.DepartureId2 ?? 0))
+                                                        {
+                                                            <option value="@item.Id" @(Model.SecondDepartureId == item.Id ? "selected" : "")>@item.Tags</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-control" name="SecondDepartureAirportId" id="edit-start2-airport" style="width: 100%">
+                                                        <option>-- Sân bay --</option>
+                                                        @foreach (var item in LoadData.AirportByProvine(Model.SecondDepartureId))
+                                                        {
+                                                            <option value="@item.Id" @(Model.SecondDepartureAirportId == item.Id ? "selected" : "")>@item.Code</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-2">Điểm đến</label>
+                                                <div class="col-md-3">
+                                                    <select class="form-control" id="edit-end2-country" style="width: 100%">
+                                                        <option>-- Chọn quốc gia --</option>
+                                                        @foreach (var item in LoadData.DropdownlistCountry())
+                                                        {
+                                                            <option value="@item.Id" @(ticket.Destination2 == item.Id ? "selected" : "")>@item.Tags</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <select class="form-control" name="SecondDestinationId" id="edit-end2-province" style="width: 100%">
+                                                        <option>-- Chọn tỉnh thành --</option>
+                                                        @foreach (var item in LoadData.ProvinceByCountry(ticket.Destination2 ?? 0))
+                                                        {
+                                                            <option value="@item.Id" @(Model.SecondDestinationId == item.Id ? "selected" : "")>@item.Tags</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-control" name="SecondDestinationAirportId" id="edit-end2-airport" style="width: 100%">
+                                                        <option>-- Sân bay --</option>
+                                                        @foreach (var item in LoadData.AirportByProvine(Model.SecondDestinationId))
+                                                        {
+                                                            <option value="@item.Id" @(Model.SecondDestinationAirportId == item.Id ? "selected" : "")>@item.Code</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="thethanhvienedit">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Khách hàng</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    <select class="form-control" name="CustomerId" id="edit-customer" style="width: 100%">
+                                                        <option>-- Chọn khách hàng --</option>
+                                                        @foreach (var item in LoadData.CustomerList())
+                                                        {
+                                                            <option value="@item.Id" @(Model.CustomerId == item.Id ? "selected" : "")>@item.FullName</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Điện thoại</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.Phone, new { @class = "form-control", id = "edit-phone" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Liên minh</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    <select class="form-control" name="AirlineLeagueId" id="edit-airline-league" style="width: 100%">
+                                                        @foreach (var item in LoadData.AirlineLeagueList())
+                                                        {
+                                                            <option value="@item.Id" @(Model.AirlineLeagueId == item.Id ? "selected" : "")>@item.Name</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <label class="control-label col-lg-2 col-md-2">Hạng thẻ</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    <input type="text" class="form-control" id="edit-card-level" value="@(Model.CardLevelId != null ? Model.tbl_DictionaryCardLevel.Name : "")" />
+                                                    <input type="hidden" id="edit-idcard-level" name="CardLevelId" value="@Model.CardLevelId" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2 col-md-2">Số thẻ</label>
+                                                <div class="col-lg-4 col-md-4">
+                                                    @Html.TextBoxFor(model => model.Skyteam, new { @class = "form-control", id = "edit-number-card" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div align="center" style="margin-bottom: 20px">
+                            <button type="submit" class="btn blue" id="btnLuuThem">Lưu</button>
+                            <button type="button" class="btn default" data-dismiss="modal">Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

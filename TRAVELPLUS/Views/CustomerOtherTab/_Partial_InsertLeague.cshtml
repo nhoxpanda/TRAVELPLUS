@@ -1,0 +1,60 @@
+﻿@using CRM.Core;
+@using TRAVELPLUS.Utilities
+@using TRAVELPLUS.Models
+@model tbl_CustomerLeague
+
+<div class="modal fade" id="modal-insert-league" role="document" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">Thêm mới Thẻ liên minh hàng không của khách hàng</h4>
+            </div>
+            @using (Ajax.BeginForm("CreateLeague", "CustomerOtherTab", null, new AjaxOptions { OnSuccess = "OnSuccessCustomer", OnFailure = "OnFailureCustomer", UpdateTargetId = "thelienminh" }))
+            {
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label col-lg-3 col-md-3">Liên minh hàng không</label>
+                                    <div class="col-lg-8 col-md-8">
+                                        <select class="form-control" style="width: 100%" id="insert-league" name="AirlineLeagueId" required>
+                                            <option>-- Chọn liên minh --</option>
+                                            @foreach (var item in LoadData.AirlineLeagueList())
+                                            {
+                                                <option value="@item.Id">@item.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-3 col-md-3">Hạng thẻ</label>
+                                    <div class="col-lg-8 col-md-8">
+                                        <select class="form-control" style="width: 100%" id="insert-card" name="CardLevelId" required>
+                                            <option>-- Chọn hạng thẻ--</option>
+                                            @foreach (var item in LoadData.CardLevelList())
+                                            {
+                                                <option value="@item.Id">@item.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-3 col-md-3">Mã thẻ</label>
+                                    <div class="col-lg-8 col-md-8">
+                                        @Html.TextBoxFor(model => model.Code, new { @class = "form-control", @required = "required" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div align="center" style="margin-bottom: 20px">
+                    <button type="submit" class="btn blue">Lưu</button>
+                    <button type="button" class="btn default" data-dismiss="modal">Đóng</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

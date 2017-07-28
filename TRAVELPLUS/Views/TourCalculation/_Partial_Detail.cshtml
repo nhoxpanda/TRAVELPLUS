@@ -1,0 +1,34 @@
+﻿@using CRM.Core
+@using CRM.Infrastructure
+@model IEnumerable<tbl_TourCalculation>
+@{
+    DataContext _db = new DataContext();
+}
+
+<table class="table table-responsive table-hover table-bordered">
+    <thead>
+        <tr>
+            <th></th>
+            @foreach (var item in Model.Select(p => p.ServiceId).Distinct().ToList())
+            {
+                <th class="textaligncenter">@_db.tbl_Dictionary.Find(item).Name</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderBy(p => p.Date).Select(p => p.Date).Distinct().ToList())
+        {
+            <tr>
+                <td class="textaligncenter">
+                    <strong>@string.Format("{0:dd-MM-yyyy}", item)</strong>
+                </td>
+                @foreach (var pr in Model.Select(p => p.ServiceId).Distinct().ToList())
+                {
+                var check = Model.FirstOrDefault(p => p.tbl_Partner.DictionaryId == pr && p.Date == item);
+                    <td class="textalignright">@(check != null ? string.Format("{0:c}", check.Price).Replace(",00", "") : "0")</td>
+
+                }
+            </tr>
+        }
+    </tbody>
+</table>

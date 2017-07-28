@@ -1,0 +1,44 @@
+﻿body {
+    font-family: 'Times New Roman';
+    font-size: 15px;
+}
+
+.titlePO {
+    text-align: center;
+    font-size: 25px;
+    margin: 20px;
+}
+
+table tr.theadPO td {
+    text-align: center;
+    font-weight: bold;
+}
+
+table tr.tbodyPO td.numberPO {
+    text-align: center;
+}
+
+table tr.tbodyPO td.pricePO {
+    text-align: right;
+}
+
+.signin {
+    margin: 20px 0;
+    text-align: center;
+}
+
+tr.theadPO {
+    background-color: #ccc;
+}
+
+.fontnormal{
+    font-weight: normal;
+}
+
+.form-group {
+    margin-bottom: 0 !important;
+}
+
+td{
+    padding: 6px !important;
+}

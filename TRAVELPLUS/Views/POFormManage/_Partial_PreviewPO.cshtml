@@ -1,0 +1,172 @@
+﻿@using TRAVELPLUS.Models
+@model POApprovalViewModel
+@{
+    int i = 1;
+}
+<style>
+    #modal-preview-po {
+        font-family: 'Times New Roman';
+        font-size: 14px;
+    }
+
+        #modal-preview-po .modal-lg {
+            width: 90%;
+        }
+
+    .titlePO {
+        text-align: center;
+        font-size: 25px;
+        margin: 20px;
+    }
+
+    table tr.theadPO td {
+        text-align: center;
+        font-weight: bold;
+    }
+
+    table tr.tbodyPO td.numberPO {
+        text-align: center;
+    }
+
+    table tr.tbodyPO td.pricePO {
+        text-align: right;
+    }
+
+    .signin {
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    tr.theadPO {
+        background-color: #ccc;
+    }
+
+    .fontnormal {
+        font-weight: normal;
+    }
+
+    .form-group {
+        margin-bottom: 0 !important;
+    }
+</style>
+<div class="modal fade bs-modal-lg" id="modal-preview-po" role="document" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group titlePO">
+                        <label class="col-md-12"><strong>PHIẾU ĐỀ NGHỊ THANH TOÁN</strong></label>
+                        <label class="col-md-12"><strong>PAYMENT REQUEST</strong></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-6">
+                            <strong>Số PO / PO Number:</strong> @Model.tbl_POApproval.PONumber
+                        </label>
+                        <label class="col-md-6">
+                            <strong>Deadline<br /> Date/Ngày:</strong> @string.Format("{0:dd/MM/yyyy}", Model.tbl_POApproval.Deadline)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2"><strong>Hình thức thanh toán:</strong></label>
+                        <label class="col-md-4 fontnormal">@(Model.tbl_POApproval.tbl_DictionaryPaymentMethod != null ? Model.tbl_POApproval.tbl_DictionaryPaymentMethod.Name : "")</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2"><strong>Số tiền bằng chữ: <br />(Amount In Words)</strong></label>
+                        <label class="col-md-4 fontnormal">@Model.tbl_POApproval.AmountWords @(@Model.tbl_POApproval.tbl_DictionaryCurrency != null ? @Model.tbl_POApproval.tbl_DictionaryCurrency.Name : "")</label>
+                        <label class="col-md-2"><strong>Số tiền bằng số: <br />(Amount In Number)</strong></label>
+                        <label class="col-md-4 fontnormal">@string.Format("{0:0,0}", Model.tbl_POApproval.AmountNumber).Replace(",", ".") @(@Model.tbl_POApproval.tbl_DictionaryCurrency != null ? @Model.tbl_POApproval.tbl_DictionaryCurrency.Name : "")</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2"><strong>Đối tác (nhà cung cấp): <br />Partner (Supplier)</strong></label>
+                        <label class="col-md-4 fontnormal">@(Model.tbl_POApproval.tbl_Partner != null ? Model.tbl_POApproval.tbl_Partner.Name : (Model.tbl_POApproval.tbl_Customer != null ? Model.tbl_POApproval.tbl_Customer.FullName : ""))</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2"><strong>Nội dung thanh toán: </strong></label>
+                        <label class="col-md-10 fontnormal">@Model.tbl_POApproval.Note</label>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <table class="table table-responsive table-hover table-bordered">
+                                <tr class="theadPO">
+                                    <td>No.</td>
+                                    <td>Description</td>
+                                    <td>Quantity</td>
+                                    <td>Price</td>
+                                    <td>Total</td>
+                                    <td>Invoice</td>
+                                </tr>
+                                @foreach (var item in Model.tbl_POApprovalDetail)
+            {
+                                    <tr class="tbodyPO">
+                                        <td class="numberPO">@i</td>
+                                        <td>@item.Description</td>
+                                        <td class="numberPO">@item.Quantity</td>
+                                        <td class="pricePO">@string.Format("{0:0,0}", item.Price).Replace(",", ".")</td>
+                                        <td class="pricePO">@string.Format("{0:0,0}", item.Total).Replace(",", ".")</td>
+                                        <td>@item.Invoice</td>
+                                    </tr>
+                                    i++;
+                                }
+                                <tr class="tbodyPO">
+                                    <td colspan="4" class="numberPO"><strong>Tổng cộng/Total Amount</strong></td>
+                                    <td class="pricePO"><strong>@string.Format("{0:0,0}", Model.tbl_POApproval.AmountNumber).Replace(",", ".")</strong></td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-12"><strong>Thông tin chuyển khoản/Bank Information:</strong></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-4"><strong>Tên tài khoản / Account Name:</strong></label>
+                        <label class="col-md-8 fontnormal">@(Model.tbl_POApproval.tbl_Bank != null ? Model.tbl_POApproval.tbl_Bank.Note : "")</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-4"><strong>Số tài khoản / Account Number:</strong></label>
+                        <label class="col-md-8 fontnormal">@(Model.tbl_POApproval.tbl_Bank != null ? Model.tbl_POApproval.tbl_Bank.Account : "")</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-4"><strong>Ngân hàng / At Bank:</strong></label>
+                        <label class="col-md-8 fontnormal">@(Model.tbl_POApproval.tbl_Bank != null ? Model.tbl_POApproval.tbl_Bank.Name : "")</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 col-sm-4 signin">
+                            <strong>Người đề nghị</strong><br />
+                            <strong>(Requester)</strong><br /><br /><br /><br /><br />
+                            <strong>@Model.tbl_POApproval.Requester</strong>
+                        </label>
+                        <label class="col-md-2 col-sm-4 signin">
+                            <strong>Trưởng phòng mua hàng</strong><br />
+                            <strong>(Purchasing)</strong><br /><br /><br /><br /><br />
+                            <strong>@Model.tbl_POApproval.Purchasing</strong>
+                        </label>
+                        <label class="col-md-2 col-sm-4 signin">
+                            <strong>Kế toán thanh toán</strong><br />
+                            <strong>(Vice Director)</strong><br /><br /><br /><br /><br />
+                            <strong>@Model.tbl_POApproval.ViceDirector</strong>
+                        </label>
+                        <label class="col-md-2 col-sm-4 signin">
+                            <strong>PGĐ chuyên môn</strong><br />
+                            <strong>(Payable accoutant)</strong><br /><br /><br /><br /><br />
+                            <strong>@Model.tbl_POApproval.PayableAccoutant</strong>
+                        </label>
+                        <label class="col-md-2 col-sm-4 signin">
+                            <strong>Kế toán trưởng</strong><br />
+                            <strong>(Cheif accountant)</strong><br /><br /><br /><br /><br />
+                            <strong>@Model.tbl_POApproval.CheifAccountant</strong>
+                        </label>
+                        <label class="col-md-2 col-sm-4 signin">
+                            <strong>Giám đốc</strong><br />
+                            <strong>(Managing Director)</strong><br /><br /><br /><br /><br />
+                            <strong>@Model.tbl_POApproval.ManagingDirector</strong>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

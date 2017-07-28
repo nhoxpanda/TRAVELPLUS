@@ -1,0 +1,51 @@
+﻿@using CRM.Core
+@model IEnumerable<tbl_TourCalculation>
+@{
+    ViewBag.Title = "DEMO CONTACT FORM";
+}
+
+<div class="page-content">
+    <!-- BEGIN PAGE HEAD-->
+    <div class="page-head">
+        <!-- BEGIN PAGE TITLE -->
+        <div class="page-title">
+            <h1>DANH SÁCH KHÁCH HÀNG</h1>
+        </div>
+    </div>
+    <!-- END PAGE HEAD-->
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="portlet light bordered">
+                <div class="portlet-body" id="data-customer">
+                    <table class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                @foreach (var item in Model.Select(p => p.ServiceId).Distinct().ToList())
+                                {
+                                    <th>@item.ToString()</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderBy(p => p.Date).Select(p => p.Date).Distinct().ToList())
+                            {
+                                <tr>
+                                    <td>
+                                        @item
+                                    </td>
+                                    @foreach (var pr in Model.Select(p => p.ServiceId).Distinct().ToList())
+                                    {
+                                        var check = Model.FirstOrDefault(p => p.tbl_Partner.DictionaryId == pr && p.Date == item);
+                                        <td>@(check != null ? check.Price : 0)</td>
+
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

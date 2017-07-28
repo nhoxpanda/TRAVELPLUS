@@ -1,0 +1,144 @@
+﻿@using CRM.Core
+@using TRAVELPLUS.Utilities
+@model tbl_POApproval
+
+<div class="modal fade  bs-modal-lg" id="modal-insert-po" role="document" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">Thêm mới Phiếu duyệt PO</h4>
+            </div>
+            @using (Html.BeginForm("Create", "POFormManage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Số PO</label>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(model => model.PONumber, new { @class = "form-control", @required = "required" })
+                            </div>
+                            <label class="control-label col-md-2">Deadline</label>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(model => model.Deadline, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Hình thức thanh toán</label>
+                            <div class="col-md-4">
+                                <select class="form-control" id="insert-paymentmethod" name="PaymentMethodId" style="width: 100%">
+                                    @foreach (var item in LoadData.PaymentMethodList())
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <label class="control-label col-md-2">Loại tiền</label>
+                            <div class="col-md-4">
+                                <select class="form-control" id="insert-currency" name="CurrencyId" style="width: 100%">
+                                    @foreach (var item in LoadData.CurrencyList())
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Khách hàng</label>
+                            <div class="col-md-4">
+                                <select class="form-control" id="insert-customer" name="CustomerId" style="width: 100%">
+                                    <option>-- Chọn khách hàng --</option>
+                                    @foreach (var item in LoadData.CustomerList())
+                                    {
+                                        <option value="@item.Id">@item.FullName</option>
+                                    }
+                                </select>
+                                @Html.TextBoxFor(model => model.CustomerName, new { @class = "form-control", @placeholder = "Nhập khách hàng..." })
+                            </div>
+                            <label class="control-label col-md-2">Đối tác</label>
+                            <div class="col-md-4">
+                                <select class="form-control" id="insert-partner" name="PartnerId" style="width: 100%">
+                                    <option>-- Chọn đối tác --</option>
+                                    @foreach (var item in LoadData.PartnerList())
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                </select>
+                                @Html.TextBoxFor(model => model.PartnerName, new { @class = "form-control", @placeholder = "Nhập đối tác..." })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Ngân hàng</label>
+                            <div class="col-md-4">
+                                <select class="form-control" id="insert-bank" name="BankId" style="width: 100%">
+                                    <option>-- Chọn ngân hàng --</option>
+                                </select>
+                            </div>
+                            <label class="control-label col-md-2">Thông tin TK</label>
+                            <div class="col-md-4">
+                                <input type="text" value="" id="txtAccountDetail" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Nội dung thanh toán</label>
+                            <div class="col-md-10">
+                                @Html.TextAreaFor(model => model.Note, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-sm btn-primary" id="btnAddInvoice"><i class="fa fa-plus"></i>&nbsp;Thêm chi tiết</button>
+                                <br />
+                                <br />
+                                <table class="table table-responsive table-bordered table-hover" id="tableDetailInvoice">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px">#</th>
+                                            <th>No.</th>
+                                            <th>Description</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                            <th>Invoice</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="rowItem" id="rowItem1">
+                                            <td>
+                                                <button type="button" class="btn-xs btn btn-danger removeItem" id="removeItem1" onclick="removeItem(1)" disabled><i class="fa fa-trash"></i>&nbsp;Xóa</button>
+                                            </td>
+                                            <td>
+                                                <label class="titleInvoice" id="titleInvoice1">1</label>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control descInvoice" id="descInvoice1" name="DescriptionInvoice1" />
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control quantityInvoice" id="quantityInvoice1" name="QuantityInvoice1" onchange="calculatorInvoice(1)" />
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control priceInvoice" id="priceInvoice1" name="PriceInvoice1" onchange="calculatorInvoice(1)" />
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control totalInvoice" id="totalInvoice1" name="TotalInvoice1" />
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control noteInvoice" id="noteInvoice1" name="NoteInvoice1" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div align="center" style="margin-bottom: 20px">
+                    <input type="hidden" value="1" id="NumberInvoiceForDelete" />
+                    <input type="hidden" value="1" name="NumberInvoice" id="NumberInvoice" />
+                    <button type="submit" class="btn blue">Lưu</button>
+                    <button type="button" class="btn default" data-dismiss="modal">Đóng</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

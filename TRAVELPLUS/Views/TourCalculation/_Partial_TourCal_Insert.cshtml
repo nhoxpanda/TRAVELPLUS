@@ -1,0 +1,82 @@
+﻿@using CRM.Core
+@using TRAVELPLUS.Utilities
+@model TRAVELPLUS.Models.TourCalModel
+
+<div class="modal fade" id="modal-insert-tourcal" role="document" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">Thêm chiết tính mới</h4>
+            </div>
+            @using (Html.BeginForm("Create", "TourCalculation", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <input class="hidden" id="tourID" name="TourID" />
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label col-lg-2 col-md-2">Tour</label>
+                                    <label class="col-lg-10 col-md-10">
+                                        @Model.TourName
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-2 col-md-2">Ngày</label>
+                                    <div class="col-lg-10 col-md-10">
+                                        @Html.DropDownListFor(model => model.DateSelect, Model.listDate, new { @class = "form-control", style = "width: 100%", @required = "required" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-2 col-md-2">Dịch vụ</label>
+                                    <div class="col-lg-10 col-md-10">
+                                        <select class="form-control" id="insert-service-tourcal" style="width: 100%" name="ServiceID" onchange="changeServices();">
+                                            <option value="0">-- Chọn dịch vụ --</option>
+                                            @foreach (var item in LoadData.ServiceList())
+                                            {
+                                            <option value="@item.Id">@item.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-2 col-md-2">Đối tác</label>
+                                    <div class="col-lg-10 col-md-10">
+                                        <select class="form-control" required id="insert-partner-tourcal" style="width: 100%" name="PartnerID">
+                                            <option>-- Chọn đối tác --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-2 col-md-2">Đơn giá</label>
+                                    <div class="col-lg-6 col-md-6">
+                                        @Html.TextBoxFor(model => model.PriceTourCal, new { @class = "form-control", @id = "priceTourCal", @required = "required" })
+                                    </div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <select class="form-control" id="insert-currency" style="width: 100%" name="CurrencyId">
+                                            @foreach (var item in LoadData.CurrencyList())
+                                            {
+                                                <option value="@item.Id">@item.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-2 col-md-2">Ghi chú</label>
+                                    <div class="col-lg-10 col-md-10">
+                                        @Html.TextAreaFor(model => model.Note, new { @class = "form-control", @id = "noteTourCal" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div align="center" style="margin-bottom: 20px">
+                    <button type="submit" class="btn blue">Lưu</button>
+                    <button type="button" class="btn default" data-dismiss="modal">Đóng</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

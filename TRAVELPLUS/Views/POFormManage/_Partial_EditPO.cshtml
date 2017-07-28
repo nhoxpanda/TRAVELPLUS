@@ -1,0 +1,169 @@
+﻿@using CRM.Core
+@using TRAVELPLUS.Utilities
+@model tbl_POApproval
+@{
+    int i = 1;
+    var details = ViewBag.DetailList as List<tbl_POApprovalDetail>;
+}
+
+<div class="modal fade  bs-modal-lg" id="modal-edit-po" role="document" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">Thêm mới Phiếu duyệt PO</h4>
+            </div>
+            @using (Html.BeginForm("Update", "POFormManage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.HiddenFor(model => model.Id)
+                @Html.HiddenFor(model => model.CreateDate)
+                @Html.HiddenFor(model => model.StatusId)
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Số PO</label>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(model => model.PONumber, new { @class = "form-control", @required = "required" })
+                            </div>
+                            <label class="control-label col-md-2">Deadline</label>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(model => model.Deadline, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Hình thức thanh toán</label>
+                            <div class="col-md-4">
+                                <select class="form-control" id="edit-paymentmethod" name="PaymentMethodId" style="width: 100%">
+                                    @foreach (var item in LoadData.PaymentMethodList())
+                                    {
+                                        <option value="@item.Id" @(Model.PaymentMethodId == item.Id ? "selected" : "")>@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <label class="control-label col-md-2">Loại tiền</label>
+                            <div class="col-md-4">
+                                <select class="form-control" id="edit-currency" name="CurrencyId" style="width: 100%">
+                                    @foreach (var item in LoadData.CurrencyList())
+                                    {
+                                        <option value="@item.Id" @(Model.CurrencyId == item.Id ? "selected" : "")>@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Khách hàng</label>
+                            <div class="col-md-4">
+                                <select class="form-control" id="edit-customer" name="CustomerId" style="width: 100%">
+                                    <option>-- Chọn khách hàng --</option>
+                                    @foreach (var item in LoadData.CustomerList())
+                                    {
+                                        <option value="@item.Id" @(Model.CustomerId == item.Id ? "selected" : "")>@item.FullName</option>
+                                    }
+                                </select>
+                                @Html.TextBoxFor(model => model.CustomerName, new { @class = "form-control", @placeholder = "Nhập khách hàng..." })
+                            </div>
+                            <label class="control-label col-md-2">Đối tác</label>
+                            <div class="col-md-4">
+                                <select class="form-control" id="edit-partner" name="PartnerId" style="width: 100%">
+                                    <option>-- Chọn đối tác --</option>
+                                    @foreach (var item in LoadData.PartnerList())
+                                    {
+                                        <option value="@item.Id" @(Model.PartnerId == item.Id ? "selected" : "")>@item.Name</option>
+                                    }
+                                </select>
+                                @Html.TextBoxFor(model => model.PartnerName, new { @class = "form-control", @placeholder = "Nhập đối tác..." })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Ngân hàng</label>
+                            <div class="col-md-4">
+                                <select class="form-control" id="edit-bank" name="BankId" style="width: 100%">
+                                    <option>-- Chọn ngân hàng --</option>
+                                    @if (Model.CustomerId != null)
+                                    {
+                                        foreach (var item in LoadData.BankDetail(Model.CustomerId, 0))
+                                        {
+                                            <option value="@item.Id" @(Model.BankId == item.Id ? "selected" : "")>@item.Name</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in LoadData.BankDetail(Model.PartnerId, 1))
+                                        {
+                                            <option value="@item.Id" @(Model.BankId == item.Id ? "selected" : "")>@item.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <label class="control-label col-md-2">Thông tin TK</label>
+                            <div class="col-md-4">
+                                <input type="text" value="@(Model.tbl_Bank != null ? Model.tbl_Bank.Note + " " + Model.tbl_Bank.Account : "")" id="txtEditAccountDetail" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Nội dung thanh toán</label>
+                            <div class="col-md-10">
+                                @Html.TextAreaFor(model => model.Note, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-sm btn-primary" id="btnAddInvoiceEdit"><i class="fa fa-plus"></i>&nbsp;Thêm chi tiết</button>
+                                <br />
+                                <br />
+                                <table class="table table-responsive table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px">#</th>
+                                            <th>No.</th>
+                                            <th>Description</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                            <th>Invoice</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in details)
+                                        {
+                                            <tr class="rowItemEdit" id="rowItemEdit@(i)">
+                                                <td>
+                                                    <button type="button" class="btn-xs btn btn-danger removeItemEdit" id="removeItemEdit@(i)" onclick="removeItemEdit(@i)"><i class="fa fa-trash"></i>&nbsp;Xóa</button>
+                                                </td>
+                                                <td>
+                                                    <label class="titleInvoiceEdit" id="titleInvoiceEdit@(i)">@(i)</label>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control descInvoiceEdit" id="descInvoiceEdit@(i)" name="DescriptionInvoiceEdit@(i)" value="@item.Description" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" class="form-control quantityInvoiceEdit" id="quantityInvoiceEdit@(i)" name="QuantityInvoiceEdit@(i)" onchange="calculatorInvoiceEdit(@i)" value="@item.Quantity" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control priceInvoiceEdit" id="priceInvoiceEdit@(i)" name="PriceInvoiceEdit@(i)" onchange="calculatorInvoiceEdit(@(i))" value="@string.Format("{0:0,0}", item.Price).Replace(",",".")" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control totalInvoiceEdit" id="totalInvoiceEdit@(i)" name="TotalInvoiceEdit@(i)" value="@string.Format("{0:0,0}", item.Total).Replace(",",".")"/>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control noteInvoiceEdit" id="noteInvoiceEdit@(i)" name="NoteInvoiceEdit@(i)" value="@item.Invoice"/>
+                                                </td>
+                                            </tr>
+                                            i++;
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div align="center" style="margin-bottom: 20px">
+                    <input type="hidden" value="@details.Count()" id="NumberInvoiceForDeleteEdit" />
+                    <input type="hidden" value="@details.Count()" name="NumberInvoiceEdit" id="NumberInvoiceEdit" />
+                    <button type="submit" class="btn blue">Lưu</button>
+                    <button type="button" class="btn default" data-dismiss="modal">Đóng</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

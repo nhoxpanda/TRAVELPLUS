@@ -1,0 +1,73 @@
+﻿@using CRM.Core;
+@using TRAVELPLUS.Utilities
+@using TRAVELPLUS.Models
+@model tbl_Airport
+
+<div class="modal fade" id="modal-edit-airport" role="document" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">Cập nhật Sân bay</h4>
+            </div>
+            @using (Html.BeginForm("Update", "AirportManage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.HiddenFor(model => model.Id)
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label col-lg-3 col-md-3">Mã sân bay</label>
+                                    <div class="col-lg-8 col-md-8">
+                                        @Html.TextBoxFor(model => model.Code, new { @class = "form-control", })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-3 col-md-3">Tên sân bay</label>
+                                    <div class="col-lg-8 col-md-8">
+                                        @Html.TextBoxFor(model => model.Name, new { @class = "form-control", })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-3 col-md-3">Quốc gia</label>
+                                    <div class="col-lg-8 col-md-8">
+                                        <select class="form-control" style="width: 100%" id="edit-country" name="CountryId">
+                                            <option>-- Chọn quốc gia --</option>
+                                            @foreach (var item in LoadData.DropdownlistCountry())
+                                            {
+                                                <option value="@item.Id" @(Model.CountryId == item.Id ? "selected" : "")>@item.Tags</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-3 col-md-3">Tỉnh/Thành phố</label>
+                                    <div class="col-lg-8 col-md-8">
+                                        <select class="form-control" style="width: 100%" id="edit-province" name="ProvinceId">
+                                            <option>-- Chọn tỉnh/thành phố --</option>
+                                            @foreach (var item in LoadData.ProvinceByCountry(Model.CountryId ?? 0))
+                                            {
+                                                <option value="@item.Id" @(Model.ProvinceId == item.Id ? "selected" : "")>@item.Tags</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-lg-3 col-md-3">Địa chỉ</label>
+                                    <div class="col-lg-8 col-md-8">
+                                        @Html.TextBoxFor(model => model.Address, new { @class = "form-control", })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div align="center" style="margin-bottom: 20px">
+                    <button type="submit" class="btn blue">Lưu</button>
+                    <button type="button" class="btn default" data-dismiss="modal">Đóng</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

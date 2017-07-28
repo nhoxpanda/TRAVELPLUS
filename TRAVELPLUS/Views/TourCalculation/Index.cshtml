@@ -1,0 +1,189 @@
+﻿@using CRM.Core;
+@using TRAVELPLUS.Utilities;
+@using TRAVELPLUS.Models;
+@model TourCalModel
+@{
+    ViewBag.Title = "Chiết tính tour";
+
+}
+<div class="page-content">
+
+    <b>c: @(25 % 25)</b>
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="portlet light bordered">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-list-alt font-red"></i>
+                        <span class="caption-subject bold uppercase font-red">Chiết tính tour</span>
+                    </div>
+                </div>
+                <div class="portlet-body" id="data-tour">
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label col-md-2">Chọn Tour</label>
+                                    <div class="col-md-4" id="tourList">
+                                        <select id="selectTour" class="form-control" name="TourList" style="width: 100%">
+                                            <option>-- Chọn tour --</option>
+                                            @foreach (var item in LoadData.TourList())
+                                            {
+                                                <option value="@item.Id">@item.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label col-lg-2 col-md-2">Từ ngày</label>
+                                    <div class="col-lg-4 col-md-4">
+                                        <input class="form-control" id="tourFromDate" style="border:none" value="" readonly/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label col-lg-2 col-md-2">Đến ngày</label>
+                                    <div class="col-lg-4 col-md-4">
+                                        <input class="form-control" id="tourToDate" style="border:none" value="" readonly/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label col-lg-2 col-md-2">Số ngày</label>
+                                    <div class="col-lg-4 col-md-4">
+                                        <input class="form-control" id="tourSoNgay" style="border:none" value="" readonly/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label col-lg-2 col-md-2">Tổng tiền dịch vụ</label>
+                                    <div class="col-lg-4 col-md-4">
+                                        <input class="form-control" id="tongtiendichvu" style="border:none" value="" readonly/>
+                                        @*@Html.TextBoxFor(model=>model.tongTien, new { @class="form-control", id = "tongtiendichvu", style = "border:none", @readonly=true })*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-sm-12">
+            <div class="portlet light bordered">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-list-alt font-red"></i>
+                        <span class="caption-subject bold uppercase font-red">Chi tiết</span>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="form-horizontal">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button id="addTourCal" class="btn sbold green"><i class="fa fa-plus"></i> Thêm </button>
+                            </div>
+                        </div>
+                        <div class="row" id="appendTable">
+                            @*<table class='table table-striped table-bordered table-hover table-checkable order-colum'><thead><tr><th> Ngày </th><th>Nhà hàng</th><th>Action</th></tr></thead></table>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="insertTourCal"></div>
+
+@section scripts{
+    <script src="~/Scripts/controller/jquery.number.js"></script>
+    <script>
+        $('#tongtiendichvu').number(true, 0);
+        $('#priceTourCal').number(true, 0);
+        $('.testi').number(true, 0);
+        $("#selectTour").select2();
+        $("#insert-currency").select2();
+        $("#selectTour").change(function () {
+            getDataFromTour();
+        });
+        function getDataFromTour() {
+            var idTour = $("#selectTour").val();
+            var _tongTien = 0;
+            $.ajax({
+                type: "POST",
+                url: '/TourCalculation/getInfoFromTour',
+                dataType: 'json',
+                data: { id: idTour },
+                success: function (data) {
+                    var arr = $.parseJSON(JSON.stringify(data.tourCal.listTourCal));
+                        $.each(arr, function (i, obj) {
+                            _tongTien += parseFloat(obj.Price);
+                        });
+                        $("#tourSoNgay").val(data.tourCal.SoNgay);
+                        $("#tourFromDate").val(data.tourCal.FromDate);
+                        $("#tourToDate").val(data.tourCal.ToDate);
+                        $("#tongtiendichvu").val(_tongTien);
+                        //
+                        var dataPost = {
+                            id: idTour
+                        };
+                        $.ajax({
+                            type: "POST",
+                            url: '/TourCalculation/getListTourCalByTourID',
+                            dataType: 'html',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(dataPost),
+                            success: function (data) {
+                                $("#appendTable").html(data);
+                            }
+                        });
+                }
+            });
+        }
+        $("#addTourCal").click(function () {
+            var id = $("#selectTour").val();
+            $.ajax({
+                type: "POST",
+                url: '/TourCalculation/getInfoAddTourCal',
+                dataType: 'html',
+                data: { id: id },
+                success: function (data) {
+                    $("#insertTourCal").html(data);
+                    $("#tourID").val(id);
+                    $('#priceTourCal').number(true, 0);
+                    $("#DateSelect").select2();
+                    $("#insert-service-tourcal").select2();
+                    $("#insert-partner-tourcal").select2();
+                    $("#modal-insert-tourcal").modal('show');
+                }
+            });
+        });
+
+        $("#insert-service-tourcal").on("change", function () {
+            
+        });
+        function changeServices() {
+            var id = Number($("#insert-service-tourcal").val());
+            console.log("testid: " + id);
+            $.ajax({
+                type: "POST",
+                url: '/TourCalculation/getPartnerListByServiceID',
+                dataType: 'json',
+                data: { id: id },
+                success: function (data) {
+                    var arr = $.parseJSON(JSON.stringify(data.listPartner));
+                    var $select = $('#insert-partner-tourcal');
+                    $select.find('option').remove();
+                    $.each(arr, function (i, obj) {
+                        $select.append('<option value=' + obj.Id + '>' + obj.Name + '</option>');
+                    });
+                }
+            });
+        }
+    </script>
+}
+

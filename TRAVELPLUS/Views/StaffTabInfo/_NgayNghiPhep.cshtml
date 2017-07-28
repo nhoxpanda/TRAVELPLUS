@@ -1,0 +1,191 @@
+﻿@using CRM.Core
+@using TRAVELPLUS.Utilities;
+@using TRAVELPLUS.Models;
+@model IEnumerable<tbl_StaffDayOff>
+@{
+    var dayOffLastYear = ViewBag.DayOffLastYear as List<CRM.Core.tbl_StaffDayOff>;
+    var staff = ViewBag.Staff as tbl_Staff;
+}
+
+@if (staff != null)
+{
+    <div class="table-scrollable table-custom-format">
+        @if (staff.StartWork != null)
+        {
+            if (staff.EndWork == null)
+            {
+                DateTime value = new DateTime(DateTime.Now.Year - 1, 12, 31);
+                int dayoffs = value.Month - staff.StartWork.Value.Month;
+                <div class="form-group">
+                    <label class="col-md-12"><strong>PHÉP NĂM TRƯỚC (@(value.Year))</strong></label>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3">Số ngày nghỉ:</label>
+                    <label class="col-md-9">@dayoffs</label>
+                </div>
+                if (dayOffLastYear.Count() > 0)
+                {
+                    <div class="form-group">
+                        <label class="col-md-3">Số ngày đã nghỉ:</label>
+                        <label class="col-md-9">@dayOffLastYear.Sum(p => p.NumberDay)</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3">Số ngày còn lại:</label>
+                        <label class="col-md-9">@(dayoffs - dayOffLastYear.Sum(p => p.NumberDay))</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-12"><strong>DANH SÁCH CÁC NGÀY NGHỈ</strong></label>
+                    </div>
+                    <div class="form-group">
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Số ngày</th>
+                                    <th>Từ ngày</th>
+                                    <th>Đến ngày</th>
+                                    <th>Lý do</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in dayOffLastYear)
+                            {
+                                    <tr class="odd gradeX">
+                                        <td>@string.Format("{0:##}", item.NumberDay)</td>
+                                        <td>@(item.StartDay != null ? string.Format("{0:dd-MM-yyyy}", item.StartDay) : "")</td>
+                                        <td>@(item.EndDate != null ? string.Format("{0:dd-MM-yyyy}", item.EndDate) : "")</td>
+                                        <td>@item.Note</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+            else
+            {
+                int dayoffs = staff.EndWork.Value.Month - staff.StartWork.Value.Month;
+                <div class="form-group">
+                    <label class="col-md-12"><strong>PHÉP NĂM TRƯỚC (@(DateTime.Now.Year - 1))</strong></label>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3">Số ngày nghỉ:</label>
+                    <label class="col-md-9">@dayoffs</label>
+                </div>
+                if (dayOffLastYear.Count() > 0)
+                {
+                    <div class="form-group">
+                        <label class="col-md-3">Số ngày đã nghỉ:</label>
+                        <label class="col-md-9">@dayOffLastYear.Sum(p => p.NumberDay)</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3">Số ngày còn lại:</label>
+                        <label class="col-md-9">@(dayoffs - dayOffLastYear.Sum(p => p.NumberDay))</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-12"><strong>DANH SÁCH CÁC NGÀY NGHỈ</strong></label>
+                    </div>
+                    <div class="form-group">
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Số ngày</th>
+                                    <th>Từ ngày</th>
+                                    <th>Đến ngày</th>
+                                    <th>Lý do</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in dayOffLastYear)
+                                {
+                                    <tr class="odd gradeX">
+                                        <td>@string.Format("{0:##}", item.NumberDay)</td>
+                                        <td>@(item.StartDay != null ? string.Format("{0:dd-MM-yyyy}", item.StartDay) : "")</td>
+                                        <td>@(item.EndDate != null ? string.Format("{0:dd-MM-yyyy}", item.EndDate) : "")</td>
+                                        <td>@item.Note</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+        }
+
+        <div class="form-group">
+            <label class="col-md-12"><strong>DANH SÁCH NGÀY NGHỈ PHÉP TRONG NĂM @DateTime.Now.Year</strong></label>
+        </div>
+
+        @if (ViewBag.IsAdd != null && ViewBag.IsAdd)
+        {
+            <a class="btn btn-primary" onclick="btnCreateDayOff();" id="btnCreateDayOff"><i class="fa fa-plus"></i>&nbsp;Thêm</a>
+        }
+        <br />
+        <br />
+        @{ 
+            int days = 0;
+            if (staff.StartWork != null && staff.StartWork.Value.Year == DateTime.Now.Year)
+            {
+                days = staff.StartWork.Value.Month - DateTime.Now.Month;
+            }
+            else
+            {
+                DateTime value = new DateTime(2017, 1, 1);
+                days = value.Month - staff.StartWork.Value.Month;
+            }
+        }
+        <div class="form-group">
+            <label class="col-md-3">Số ngày nghỉ:</label>
+            <label class="col-md-9">@days ngày</label>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3">Số ngày đã nghỉ:</label>
+            <label class="col-md-9">@Model.Sum(p => p.NumberDay) ngày</label>
+        </div>
+        @if (Model.Count() > 0)
+        {
+            <div class="form-group">
+                <label class="col-md-3">Số ngày còn lại:</label>
+                <label class="col-md-9">@(days - @Model.Sum(p => p.NumberDay)) ngày</label>
+            </div>
+        }
+        else
+        {<div class="form-group">
+            <label class="col-md-3">Số ngày còn lại:</label>
+            <label class="col-md-9">@(days) ngày</label>
+        </div>
+
+        }
+        <div class="form-group">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Số ngày</th>
+                        <th>Từ ngày</th>
+                        <th>Đến ngày</th>
+                        <th>Lý do</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="odd gradeX">
+                            <td>
+                                @if (ViewBag.IsEdit != null && ViewBag.IsEdit)
+                                { <a style="cursor: pointer" onclick="updateDayOff(@item.Id)"><i class="fa fa-pencil"></i>&nbsp;Sửa</a><br />}
+
+                                @if (ViewBag.IsDelete != null && ViewBag.IsDelete)
+                                {   <a style="cursor: pointer" onclick="deleteDayOff(@item.Id)"><i class="fa fa-trash"></i>&nbsp;Xóa</a>}
+                            </td>
+                            <td>@string.Format("{0:##}", item.NumberDay)</td>
+                            <td>@(item.StartDay != null ? string.Format("{0:dd-MM-yyyy}", item.StartDay) : "")</td>
+                            <td>@(item.EndDate != null ? string.Format("{0:dd-MM-yyyy}", item.EndDate) : "")</td>
+                            <td>@item.Note</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

@@ -1,0 +1,104 @@
+﻿@using CRM.Core
+@using CRM.Infrastructure;
+@using CRM.Enum
+@using TRAVELPLUS.Models
+@using TRAVELPLUS.Utilities
+@model tbl_Staff
+@{
+    var sumNumDayOff = ViewBag.sumNumDayOff;
+}
+<div class="row">
+    @if (Model != null)
+    {
+        var _staffTime = LoadData.GetTimeWorkingDayOffByStaffID(Model.Id);
+        <div class="col-md-4">
+            <p><b>Họ tên:</b>&nbsp;@Model.FullName</p>
+            <p><b>Ngày sinh:</b>&nbsp;@(Model.Birthday != null ? Model.Birthday.Value.ToString("dd-MM-yyyy") : "")</p>
+            <p><b>Nguyên quán:</b>&nbsp;@Model.HouseholdAdress</p>
+            <p><b>Nơi ở hiện tại:</b>&nbsp;@Model.Address</p>
+            <p><b>CMND:</b>&nbsp;@Model.IdentityCard</p>
+            <p><b>Ngày cấp:</b>&nbsp;@(Model.CreatedDateIdentity != null ? Model.CreatedDateIdentity.Value.ToString("dd-MM-yyyy") : "")</p>
+            <p><b>Nơi cấp:</b> @(Model.IdentityTagId != null ? Model.tbl_TagsIdentity.Tag : "")</p>
+            <p><b>Tài khoản:</b> @Model.AccountNumber</p>
+            <p><b>Ngày vào làm:</b> &nbsp;@(Model.StartWork != null ? Model.StartWork.Value.ToString("dd-MM-yyyy") : "")</p>
+            <p><b>@(Model.IsLock == true ? "Ngày nghỉ việc: " : "")</b> @(Model.IsLock == true ? Model.EndWork.Value.ToString("dd-MM-yyyy") : "")</p>
+            <p><b>Tình trạng:</b> @(Model.IsLock == true ? "Đã nghỉ việc" : "Đang làm việc")</p>
+            <p><b>Số ngày phép cũ:</b> @(Model.NumberDayOffOld != null ? Model.NumberDayOffOld : 0) ngày (@(DateTime.Now.Year - 1))</p>
+            <p><b>Số ngày phép:</b> @_staffTime.DayOffPerYear ngày (@DateTime.Now.Year)</p>
+            <p><b>Số ngày đã nghỉ phép:</b>&nbsp;@sumNumDayOff ngày (@DateTime.Now.Year)</p>
+            <p><b>Số ngày phép còn lại  :</b>&nbsp;@Model.NumdayOffLeft ngày (@DateTime.Now.Year)</p>
+        </div>
+        <div class="col-md-4">
+            <p><b>Mã số:</b>&nbsp;@Model.Code</p>
+            <p><b>Điện thoại:</b>&nbsp;@Model.Phone</p>
+            <p><b>Số nội bộ:</b>&nbsp;@Model.InternalNumber</p>
+            <p><b>Nơi sinh:</b>&nbsp;@(Model.tbl_TagsBirthplace != null ? Model.tbl_TagsBirthplace.Tag : "")</p>
+            <p><b>Thường trú:</b>&nbsp;@Model.HouseholdAdress</p>
+            <p><b>Email:</b>&nbsp;@Model.Email</p>
+            <p><b>Skype:</b>&nbsp;@Model.Skype</p>
+            @{
+                if (Model.HeadquarterId != null)
+                {
+                    using (var _db = new DataContext())
+                    {
+                        <p><b>Chi nhánh:</b>&nbsp;@_db.tbl_Headquater.Find(Model.HeadquarterId).ShortName</p>
+                    }
+                }
+                else
+                {
+                    <p><b>Chi nhánh:</b>&nbsp;</p>
+                }
+            }
+            <p><b>Chức vụ:</b>&nbsp;@(Model.PositionId != null ? Model.tbl_DictionaryPosition.Name : "")</p>
+            <p><b>Phòng ban:</b>&nbsp;@(Model.DepartmentId != null ? Model.tbl_DictionaryDepartment.Name : "")</p>
+            <p><b>Nhóm:</b>&nbsp;@(Model.StaffGroupId != null ? Model.tbl_DictionaryStaffGroup.Name : "")</p>
+            <p><b>Ngày kí HĐ chính thức:</b> &nbsp;@(Model.ContractDate != null ? Model.ContractDate.Value.ToString("dd-MM-yyyy") : "")</p>
+            @if (_staffTime.Years > 0)
+            {
+                <p><b>Thâm niên làm việc:</b> @_staffTime.Years năm @_staffTime.Months tháng @_staffTime.Days ngày </p>
+            }
+            else
+            {
+                <p><b>Thâm niên làm việc:</b> @_staffTime.Months tháng @_staffTime.Days ngày </p>
+            }
+            @{
+                if (Model.tbl_StaffSalary.LastOrDefault() != null)
+                {
+                    <p><b>Lương chính thức:</b>&nbsp;@Model.tbl_StaffSalary.LastOrDefault().CurSalary</p>
+                }
+                else
+                {
+                    <p><b>Lương chính thức:</b>&nbsp;</p>
+                }
+            }
+            
+        </div>
+        <div class="col-md-4">
+            <p><b>Quốc tịch:</b>&nbsp;@(Model.CitizenshipId != null ? Model.tbl_TagsCitizenship.Tag : "").</p>
+            <p><b>Tình trạng gia đình:</b>&nbsp;@(Model.Marriage == Marriage.KetHon ? "Kết hôn" : "Độc thân")</p>
+            <p><b>Tôn giáo:</b>&nbsp;@(Model.ReligionId != null ? Model.tbl_DictionaryReligion.Name : "")</p>
+            <p><b>Dân tộc:</b>&nbsp;@(Model.NationalId != null ? Model.tbl_DictionaryNational.Name : "")</p>
+            <p><b>Bằng cấp:</b>&nbsp;@(Model.CertificateId != null ? Model.tbl_DictionaryCertificate.Name : "")</p>
+            <p><b>Chuyên môn:</b>&nbsp;@Model.Technique</p>
+            <p><b>Ngoại ngữ:</b>&nbsp;@Model.Language</p>
+            <p><b>Số Tài khoản:</b>&nbsp;@Model.AccountNumber</p>
+            <p><b>Ngân hàng:</b>&nbsp;@Model.Bank</p>
+            <p><b>Loại hợp đồng:</b>&nbsp;@(Model.tbl_DictionaryContractType != null ? Model.tbl_DictionaryContractType.Name : "")</p>
+            <p><b>HĐLĐ từ ngày:</b>&nbsp;@(Model.ContractFromDate != null ? Model.ContractFromDate.Value.ToString("dd-MM-yyyy") : "")</p>
+            <p><b>HĐLĐ đến ngày:</b>&nbsp;@(Model.ContractEndDate != null ? Model.ContractEndDate.Value.ToString("dd-MM-yyyy") : "")</p>
+            <p>
+                <b>Hình ảnh</b><br />
+                @if (!string.IsNullOrEmpty(Model.Image))
+                {
+                    <img src="/Upload/file/@Model.Image" class="img-responsive" style="width: 200px" />
+                }
+            </p>
+        </div>
+        <div class="col-md-12">
+            <p><b>Kinh nghiệm trước khi làm TravelPlus:</b> @Html.Raw(Model.ExperienceNote)</p>
+        </div>
+        <div class="col-md-12">
+            <p><b>Kinh nghiệm trong khi đang làm TravelPlus:</b> @Html.Raw(Model.ExperienceTP)</p>
+        </div>
+    }
+</div>

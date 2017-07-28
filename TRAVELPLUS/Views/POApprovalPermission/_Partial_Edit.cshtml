@@ -1,0 +1,65 @@
+﻿@using CRM.Enum
+@using CRM.Core
+@using TRAVELPLUS.Models
+@using TRAVELPLUS.Utilities
+@model tbl_POApprovalPermission
+@{
+    var staffList = ViewBag.StaffFullList as List<tbl_Staff>;
+}
+<div class="modal fade  bs-modal-lg" id="modal-edit-popermission" role="document" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">Thiết lập nhân viên cho cấp độ @Model.Level - @(Model.tbl_Dictionary.Name + " " + Model.tbl_Dictionary.Note)</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="table-scrollable table-custom-format">
+                        <table class="table table-bordered table-hover dataTable2" id="tableStaff">
+                            <thead>
+                                <tr>
+                                    <th class="width24"></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                <tr>
+                                    <th class="width24"><input type="checkbox" id="allstaff" name="allstaff" /></th>
+                                    <th>Họ tên</th>
+                                    <th>Email</th>
+                                    <th>Phòng ban</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in staffList)
+                                {
+                                    <tr class="odd gradeX">
+                                        <td style="text-align: center" class="width24">
+                                            <input type="checkbox" value="@item.Id" class="checkAddStaff" name="checkAddStaff" @(!string.IsNullOrEmpty(Model.ListStaffId) ? (Model.ListStaffId.Contains(item.Id.ToString()) == true ? "checked" : "") : "") />
+                                        </td>
+                                        <td>@item.FullName</td>
+                                        <td>@item.Email</td>
+                                        <td>@(item.tbl_DictionaryDepartment != null ? item.tbl_DictionaryDepartment.Name : "")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div align="center" style="margin-bottom: 20px">
+                <form action="@Url.Action("Update", "POApprovalPermission")" method="post" id="formAddStaff">
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.Id)
+                    @Html.HiddenFor(model => model.Level)
+                    @Html.HiddenFor(model => model.PositionPOId)
+                    <input type="hidden" id="listItemIdAddStaff" name="ListStaffId" value="@Model.ListStaffId" />
+
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <button type="button" class="btn default" data-dismiss="modal">Đóng</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

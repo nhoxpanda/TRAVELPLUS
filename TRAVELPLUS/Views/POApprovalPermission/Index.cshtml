@@ -1,0 +1,81 @@
+﻿@using CRM.Core
+@using TRAVELPLUS.Utilities
+@model IEnumerable<tbl_POApprovalPermission>
+
+@{
+    ViewBag.Title = "Quản lý Phân quyền duyệt PO";
+}
+
+<div class="page-content">
+    <!-- BEGIN PAGE HEAD-->
+    <div class="page-head">
+        <!-- BEGIN PAGE TITLE -->
+        <div class="page-title">
+            <h1>DANH SÁCH PHÂN QUYỀN DUYỆT PO</h1>
+        </div>
+        <!-- END PAGE TITLE -->
+    </div>
+    <!-- END PAGE HEAD-->
+    <!-- BEGIN PAGE BASE CONTENT -->
+    <div class="note note-info">
+        <div class="row">
+            <div class="col-md-12">
+                <a href="@Url.Action("Index", "POApprovalPermission")" class="btn btn-default"><i class="fa fa-refresh"></i>&nbsp;Refresh</a>
+                @if (ViewBag.IsEdit != null && ViewBag.IsEdit)
+                {
+                    <button class="btn btn-warning" id="btnEdit"><i class="fa fa-user-plus"></i>&nbsp;Thiết lập nhân viên</button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="portlet light bordered">
+                <div class="portlet-body">
+                    <div class="table-responsive table-custom-format" id="tableDictionary-Wrapper">
+                        <table class="table table-striped table-bordered table-hover dataTable" id="tableDictionary">
+                            <thead>
+                                <tr>
+                                    <td class="width24"></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <th class="table-checkbox">
+                                        <input type="checkbox" id="allcb" name="allcb" onclick="SelectAllCb()" />
+                                    </th>
+                                    <th>Cấp độ</th>
+                                    <th>Vị trí</th>
+                                    <th>Danh sách nhân viên</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr class="odd gradeX">
+                                        <td class="width24">
+                                            <input type="checkbox" value="@item.Id" id="cb@(item.Id)" class="cbItem" name="cb" onclick="CheckSelect()" />
+                                        </td>
+                                        <td>@item.Level</td>
+                                        @if (item.tbl_Dictionary != null)
+                                        {
+                                            <td>@item.tbl_Dictionary.Name @item.tbl_Dictionary.Note</td>
+                                        }
+                                        <td>@(!string.IsNullOrEmpty(item.ListStaffId) ? LoadData.GetStaff(item.ListStaffId) : "")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END PAGE BASE CONTENT -->
+</div>
+<div id="data-popermission"></div>
+@section scripts{
+    <script src="~/Scripts/controller/popermission.js"></script>
+}
+

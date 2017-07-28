@@ -1,0 +1,38 @@
+﻿@using CRM.Core
+@model tbl_POApproval
+@{
+    Layout = "~/Views/Shared/_LayoutPO.cshtml";
+    ViewBag.Title = "Duyệt PO cấp 4";
+    var history = ViewBag.History as List<tbl_POApprovalHistory>;
+}
+
+@Html.Action("_Partial_InfoApprovalPO", "POApprovalManage", new { id = ViewBag.ID })
+
+<div class="form-group">
+    <label class="col-md-12"><strong>Ghi chú: (duyệt cấp 4)</strong></label>
+    @foreach (var item in history)
+    {
+        if (item.Note != null)
+        {
+            <label class="col-md-12">@item.tbl_Staff.FullName : @item.Note</label>
+        }
+    }
+</div>
+
+
+@using (Ajax.BeginForm("Level4", "POApprovalManage", null, new AjaxOptions { OnSuccess = "OnSuccess", OnFailure = "OnFailure", UpdateTargetId = "dataLevelApproval" }))
+{
+    <div class="form-group">
+        <div class="col-md-12" style="margin-top: 10px;">
+            <textarea class="form-control" name="txtNote" placeholder="Nhập ghi chú vào đây (nếu có)" style="border-radius: 0;"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-12" style="text-align: right; margin-top: 10px;">
+            <input type="submit" class="btn btn-primary" value="Chấp nhận" name="btnAccept" style="border-radius: 0;" @ViewBag.Disabled />
+            <input type="submit" class="btn btn-danger" value="Từ chối" name="btnCancel" style="border-radius: 0;" @ViewBag.Disabled />
+        </div>
+    </div>
+}
+
+<input type="hidden" value="@ViewBag.URL" id="txtURL" />
